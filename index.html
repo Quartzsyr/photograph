@@ -10,20 +10,19 @@
     <style>
         :root {
             --bg-color: #080808;
-            --film-base: #111; /* 胶片片基颜色 */
+            --film-base: #111;
             --text-main: #e6e6e6;
             --text-muted: #999;
-            --accent: #cf3030; /* 柯达红点缀 */
-            --sprocket-color: #000; /* 齿孔颜色 */
+            --accent: #cf3030;
+            --sprocket-color: #000;
             --cursor-size: 30px;
         }
 
-        /* === 1. 全局重置与光标 (新增：自定义光标，增强高级感) === */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            cursor: none; /* 隐藏默认光标 */
+            cursor: none;
         }
         html { scroll-behavior: smooth; }
         body {
@@ -45,7 +44,6 @@
         }
         .hovering .cursor-outline { width: 40px; height: 40px; background-color: rgba(255, 255, 255, 0.1); border-color: transparent; }
         
-        /* === 2. 全局胶片元素 === */
         .film-grain {
             position: fixed; inset: 0; pointer-events: none; z-index: 9998; opacity: 0.08;
             background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
@@ -53,31 +51,37 @@
         .side-sprockets {
             position: fixed; top: 0; bottom: 0; width: 25px; z-index: 9990;
             background-color: var(--film-base);
-            background-image: radial-gradient(rect(4px 3px) at 50% 50%, var(--sprocket-color) 60%, transparent 61%), linear-gradient(to bottom, #222 1px, transparent 1px);
+            background-image: radial-gradient(circle at 50% 50%, var(--sprocket-color) 60%, transparent 61%), linear-gradient(to bottom, #222 1px, transparent 1px);
             background-size: 100% 30px, 100% 4px; background-repeat: repeat-y;
             border-right: 1px solid #222;
         }
         .side-sprockets.left { left: 0; }
         .side-sprockets.right { right: 0; border-right: none; border-left: 1px solid #222; }
 
-        /* === 3. 动效类 (Scroll Reveal) === */
         .fade-in-up {
             opacity: 0; transform: translateY(40px);
             transition: opacity 1s ease-out, transform 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
         .fade-in-up.visible { opacity: 1; transform: translateY(0); }
 
-        /* === 4. 导航 === */
+        /* 导航栏 - 新增：滚动变化效果 */
         nav {
             position: fixed; top: 0; width: 100%; padding: 2rem 4rem;
-            display: flex; justify-content: space-between; align-items: center; z-index: 100; mix-blend-mode: exclusion;
+            display: flex; justify-content: space-between; align-items: center; z-index: 100;
+            transition: all 0.3s ease;
+        }
+        nav.scrolled {
+            background-color: rgba(8, 8, 8, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1.2rem 4rem;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.5);
         }
         .logo { font-family: 'Cinzel', serif; font-size: 1.3rem; letter-spacing: 0.2em; font-weight: 600; }
+        .nav-links { display: flex; gap: 3rem; }
         .menu-link { text-decoration: none; color: inherit; font-size: 0.9rem; letter-spacing: 0.15em; cursor: pointer; position: relative; padding-bottom: 5px; }
         .menu-link::after { content: ''; position: absolute; bottom: 0; right: 0; width: 0; height: 1px; background: var(--accent); transition: width 0.4s ease-out; }
         .menu-link:hover::after { width: 100%; left: 0; background: var(--text-main); }
 
-        /* === 5. Hero Section (石殷睿姓名加入) === */
         .hero {
             height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; position: relative; text-align: center; overflow: hidden;
             background-image: url('https://images.unsplash.com/photo-1595780109186-28a8b07a80e8?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80');
@@ -106,14 +110,12 @@
             font-size: 0.7rem; letter-spacing: 0.2em; z-index: 10; opacity: 0.7; animation: pulse 2s infinite;
         }
 
-        /* === 6. 简介区域 (Bio) === */
         .content-wrapper { padding: 0 40px; }
         .bio-section {
             padding: 10rem 10vw; display: grid; grid-template-columns: 1fr 2fr; gap: 5rem; align-items: start; position: relative;
         }
         .bio-title h2 { font-family: 'Cinzel', serif; font-size: 3rem; margin-bottom: 1rem; }
         .bio-title span { display: block; font-size: 0.9rem; color: var(--accent); letter-spacing: 0.2em; margin-bottom: 3rem; font-family: monospace; }
-        /* 新增：作者姓名和别名 */
         .author-name { 
             display: block; font-size: 1.5rem; color: var(--text-main); margin-bottom: 0.5rem; font-weight: 500;
         }
@@ -123,26 +125,43 @@
         .credentials-grid {
             display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 2rem; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid #222;
         }
-        .credential-item { display: flex; align-items: flex-start; }
+        .credential-item { display: flex; align-items: flex-start; transition: transform 0.3s; }
+        .credential-item:hover { transform: translateX(8px); }
         .credential-icon { color: var(--accent); font-size: 1.2rem; margin-right: 1rem; line-height: 1; margin-top: 4px; }
         .credential-text { font-size: 0.9rem; letter-spacing: 0.05em; color: var(--text-main); }
         .credential-text small { display: block; color: #666; margin-top: 4px; }
 
-
-        /* === 7. 画廊区域 (填充图片链接) === */
+        /* 新增：作品分类过滤 */
         .gallery-section { padding: 4rem 5vw 10rem; background-color: #050505; position: relative; }
         .section-header {
-            text-align: center; margin-bottom: 6rem; font-family: 'Cinzel', serif;
+            text-align: center; margin-bottom: 3rem; font-family: 'Cinzel', serif;
             font-size: 1.5rem; letter-spacing: 0.3em; color: var(--text-muted);
         }
         .section-header::after { content: ''; display: block; width: 40px; height: 2px; background: var(--accent); margin: 20px auto 0; }
+
+        .filter-buttons {
+            display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 4rem; flex-wrap: wrap;
+        }
+        .filter-btn {
+            background: transparent; border: 1px solid #333; color: var(--text-muted);
+            padding: 0.8rem 1.8rem; font-size: 0.8rem; letter-spacing: 0.15em;
+            cursor: pointer; transition: all 0.3s; font-family: 'Jost', sans-serif;
+            text-transform: uppercase; border-radius: 2px;
+        }
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--accent); color: #000; border-color: var(--accent);
+            transform: translateY(-2px);
+        }
 
         .gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 80px 60px; }
 
         .film-frame-container {
             position: relative; padding: 25px; background-color: var(--film-base);
             box-shadow: 0 10px 30px -10px rgba(0,0,0,0.8); cursor: pointer;
-            transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+            transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+        .film-frame-container.hidden {
+            display: none;
         }
         .film-frame-container:hover { transform: translateY(-10px) scale(1.01); box-shadow: 0 20px 40px -15px rgba(0,0,0,1); }
 
@@ -161,11 +180,115 @@
         .film-frame-container:hover img { filter: saturate(1.1) contrast(1) brightness(1); transform: scale(1.03); }
         .film-frame-container:nth-child(even) { margin-top: 80px; }
 
-        /* === 8. Footer & Contact === */
+        /* 新增：图片信息叠加 */
+        .img-info {
+            position: absolute; bottom: 25px; left: 25px; right: 25px;
+            background: linear-gradient(to top, rgba(0,0,0,0.95), transparent);
+            padding: 1.5rem; opacity: 0; transform: translateY(20px);
+            transition: all 0.4s ease;
+        }
+        .film-frame-container:hover .img-info {
+            opacity: 1; transform: translateY(0);
+        }
+        .img-info h4 {
+            font-size: 0.95rem; margin-bottom: 0.4rem; letter-spacing: 0.1em;
+        }
+        .img-info p {
+            font-size: 0.75rem; color: var(--text-muted); line-height: 1.6;
+        }
+
+        /* 新增：全屏灯箱查看 */
+        .lightbox {
+            display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.97);
+            z-index: 10000; align-items: center; justify-content: center;
+            animation: fadeIn 0.3s;
+        }
+        .lightbox.active { display: flex; }
+        .lightbox-content {
+            max-width: 85%; max-height: 85vh; position: relative;
+        }
+        .lightbox-content img {
+            width: 100%; height: 100%; object-fit: contain;
+            border: 2px solid #222;
+        }
+        .lightbox-info {
+            position: absolute; bottom: -60px; left: 0; right: 0;
+            text-align: center; color: var(--text-muted);
+            font-size: 0.85rem; letter-spacing: 0.1em;
+        }
+        .lightbox-close {
+            position: absolute; top: 2rem; right: 2rem; font-size: 2.5rem;
+            color: white; cursor: pointer; z-index: 10001;
+            width: 50px; height: 50px; display: flex; align-items: center;
+            justify-content: center; border: 1px solid rgba(255,255,255,0.3);
+            transition: all 0.3s; line-height: 1;
+        }
+        .lightbox-close:hover {
+            background: var(--accent); border-color: var(--accent);
+            transform: rotate(90deg);
+        }
+
+        /* 新增：返回顶部按钮 */
+        .back-to-top {
+            position: fixed; bottom: 3rem; right: 3rem;
+            width: 55px; height: 55px; background: var(--accent);
+            border-radius: 50%; display: flex; align-items: center;
+            justify-content: center; cursor: pointer;
+            opacity: 0; visibility: hidden;
+            transition: all 0.4s; z-index: 1000;
+            box-shadow: 0 4px 15px rgba(207, 48, 48, 0.3);
+        }
+        .back-to-top.visible {
+            opacity: 1; visibility: visible;
+        }
+        .back-to-top:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 10px 30px rgba(207, 48, 48, 0.5);
+        }
+        .back-to-top::before {
+            content: '↑'; color: #000; font-size: 1.8rem; font-weight: bold;
+        }
+
+        /* 新增：加载动画 */
+        .loading-screen {
+            position: fixed; inset: 0; background: var(--bg-color);
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            z-index: 99999; transition: opacity 0.5s, visibility 0.5s;
+        }
+        .loading-screen.hidden {
+            opacity: 0; visibility: hidden;
+        }
+        .loader {
+            width: 50px; height: 50px; border: 3px solid #222;
+            border-top-color: var(--accent); border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        .loading-text {
+            margin-top: 2rem; font-size: 0.85rem; letter-spacing: 0.3em;
+            color: var(--text-muted);
+        }
+
         footer {
             padding: 8rem 2rem 4rem; text-align: center; border-top: 1px solid #222; background: #070707; position: relative; z-index: 10;
         }
         .footer-logo { font-family: 'Cinzel', serif; font-size: 2rem; margin-bottom: 2rem; letter-spacing: 0.2em; }
+        
+        /* 新增：社交媒体图标 */
+        .social-links {
+            display: flex; justify-content: center; gap: 1.5rem; margin-bottom: 3rem;
+        }
+        .social-link {
+            width: 45px; height: 45px; border: 1px solid #333;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; transition: all 0.3s;
+            text-decoration: none; color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+        .social-link:hover {
+            border-color: var(--accent); color: var(--accent);
+            transform: translateY(-5px) rotate(360deg);
+        }
+
         .contact-email {
             font-size: 1.5rem; font-weight: 300; letter-spacing: 0.1em; margin-bottom: 3rem; display: inline-block;
             text-decoration: none; color: var(--text-main); position: relative; transition: color 0.3s;
@@ -175,13 +298,13 @@
 
         .copyright { font-size: 0.75rem; letter-spacing: 0.15em; color: #555; line-height: 1.8; }
 
-        /* === 9. Media Queries & Animations === */
         @media (max-width: 768px) {
-            .cursor-dot, .cursor-outline { display: none; } /* 移动端隐藏光标 */
-            * { cursor: auto; } /* 移动端使用系统光标 */
+            .cursor-dot, .cursor-outline { display: none; }
+            * { cursor: auto !important; }
             .side-sprockets { display: none; }
             .content-wrapper { padding: 0; }
             nav { padding: 1.5rem 2rem; }
+            nav.scrolled { padding: 1rem 2rem; }
             .hero h1 { font-size: 3.8rem; }
             .hero-subtitle { flex-direction: column; gap: 10px; }
             .bio-section { grid-template-columns: 1fr; padding: 6rem 2rem; gap: 3rem; }
@@ -189,13 +312,25 @@
             .gallery-section { padding: 4rem 2rem; }
             .gallery-grid { grid-template-columns: 1fr; gap: 60px; }
             .film-frame-container:nth-child(even) { margin-top: 0; }
+            .filter-buttons { gap: 1rem; }
             .contact-email { font-size: 1.1rem; }
+            .back-to-top { bottom: 2rem; right: 2rem; width: 45px; height: 45px; }
+            .lightbox-content { max-width: 95%; }
+            .lightbox-close { top: 1rem; right: 1rem; width: 40px; height: 40px; font-size: 2rem; }
         }
 
         @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes spin { to { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
+    <!-- 新增：加载动画 -->
+    <div class="loading-screen" id="loadingScreen">
+        <div class="loader"></div>
+        <div class="loading-text">LOADING FILM</div>
+    </div>
+
     <div class="cursor-dot"></div>
     <div class="cursor-outline"></div>
 
@@ -204,9 +339,13 @@
     <div class="side-sprockets left"></div>
     <div class="side-sprockets right"></div>
 
-    <nav>
+    <nav id="navbar">
         <div class="logo">QUARTZ</div>
-        <a href="#contact" class="menu-link">CONTACT</a>
+        <div class="nav-links">
+            <a href="#about" class="menu-link">ABOUT</a>
+            <a href="#works" class="menu-link">WORKS</a>
+            <a href="#contact" class="menu-link">CONTACT</a>
+        </div>
     </nav>
 
     <section class="hero">
@@ -227,7 +366,8 @@
         <section class="bio-section" id="about">
             <div class="bio-title fade-in-up">
                 <h2>关于<br>Quartz</h2>
-                <span class="author-name">石殷睿 (Shi Yinrui)</span> <span>ANALOG & DIGITAL FUSION</span>
+                <span class="author-name">石殷睿 (Shi Yinrui)</span>
+                <span>ANALOG & DIGITAL FUSION</span>
                 
                 <div class="edu-bg">
                     教育背景<br>
@@ -277,37 +417,103 @@
 
     <section class="gallery-section" id="works">
         <div class="section-header fade-in-up">SELECTED WORKS / 胶片选辑</div>
+        
+        <!-- 新增：作品过滤按钮 -->
+        <div class="filter-buttons">
+            <button class="filter-btn active" data-filter="all">ALL</button>
+            <button class="filter-btn" data-filter="portrait">PORTRAIT</button>
+            <button class="filter-btn" data-filter="landscape">LANDSCAPE</button>
+            <button class="filter-btn" data-filter="street">STREET</button>
+        </div>
+
         <div class="content-wrapper">
             <div class="gallery-grid">
-                <div class="film-frame-container fade-in-up" data-film-type="KODAK PORTRA 400" data-frame-no="14A">
+                <div class="film-frame-container fade-in-up" data-film-type="KODAK PORTRA 400" data-frame-no="14A" data-category="portrait">
                     <div class="gallery-img-wrapper">
-                        <img src="img1.jpg" alt="Film Photo 1">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=800" alt="Portrait 1">
+                        <!-- 新增：图片信息 -->
+                        <div class="img-info">
+                            <h4>静谧时光</h4>
+                            <p>Kodak Portra 400 · Hasselblad 500C/M · 2024</p>
+                        </div>
                     </div>
                 </div>
 
-                <div class="film-frame-container fade-in-up" data-film-type="ILFORD HP5 PLUS" data-frame-no="21" style="transition-delay: 0.1s;">
+                <div class="film-frame-container fade-in-up" data-film-type="ILFORD HP5 PLUS" data-frame-no="21" data-category="street" style="transition-delay: 0.1s;">
                     <div class="gallery-img-wrapper">
-                        <img src="img2.jpg" alt="Film Photo 2">
+                        <img src="https://images.unsplash.com/photo-1514565131-fce0801e5785?w=800" alt="Street 1">
+                        <div class="img-info">
+                            <h4>城市剪影</h4>
+                            <p>Ilford HP5 Plus · Leica M6 · 2024</p>
+                        </div>
                     </div>
                 </div>
 
-                <div class="film-frame-container fade-in-up" data-film-type="CINESTILL 800T" data-frame-no="08A" style="transition-delay: 0.2s;">
+                <div class="film-frame-container fade-in-up" data-film-type="CINESTILL 800T" data-frame-no="08A" data-category="landscape" style="transition-delay: 0.2s;">
                     <div class="gallery-img-wrapper">
-                        <img src="img3.jpg" alt="Film Photo 3">
+                        <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800" alt="Landscape 1">
+                        <div class="img-info">
+                            <h4>山海之间</h4>
+                            <p>Cinestill 800T · Pentax 67 · 2023</p>
+                        </div>
                     </div>
                 </div>
 
-                <div class="film-frame-container fade-in-up" data-film-type="FUJI PRO 400H" data-frame-no="32" style="transition-delay: 0.3s;">
+                <div class="film-frame-container fade-in-up" data-film-type="FUJI PRO 400H" data-frame-no="32" data-category="portrait" style="transition-delay: 0.3s;">
                     <div class="gallery-img-wrapper">
-                        <img src="img4.jpg" alt="Film Photo 4">
+                        <img src="https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=800" alt="Portrait 2">
+                        <div class="img-info">
+                            <h4>光影诗意</h4>
+                            <p>Fuji Pro 400H · Contax 645 · 2023</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="film-frame-container fade-in-up" data-film-type="KODAK EKTAR 100" data-frame-no="07" data-category="landscape" style="transition-delay: 0.4s;">
+                    <div class="gallery-img-wrapper">
+                        <img src="https://images.unsplash.com/photo-1472214103451-9374bd1c798e?w=800" alt="Landscape 2">
+                        <div class="img-info">
+                            <h4>自然之声</h4>
+                            <p>Kodak Ektar 100 · Mamiya RZ67 · 2024</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="film-frame-container fade-in-up" data-film-type="ILFORD HP5 PLUS" data-frame-no="15" data-category="street" style="transition-delay: 0.5s;">
+                    <div class="gallery-img-wrapper">
+                        <img src="https://images.unsplash.com/photo-1477959858617-67f85cf4f1df?w=800" alt="Street 2">
+                        <div class="img-info">
+                            <h4>街头瞬间</h4>
+                            <p>Ilford HP5 Plus · Nikon FM2 · 2023</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
 
+    <!-- 新增：全屏灯箱 -->
+    <div class="lightbox" id="lightbox">
+        <div class="lightbox-close" id="lightboxClose">×</div>
+        <div class="lightbox-content">
+            <img id="lightboxImg" src="" alt="">
+            <div class="lightbox-info" id="lightboxInfo"></div>
+        </div>
+    </div>
+
+    <!-- 新增：返回顶部按钮 -->
+    <div class="back-to-top" id="backToTop"></div>
+
     <footer id="contact">
         <div class="footer-logo">QUARTZ STUDIO</div>
+        
+        <!-- 新增：社交媒体链接 -->
+        <div class="social-links">
+            <a href="https://www.instagram.com" target="_blank" class="social-link" title="Instagram">IG</a>
+            <a href="https://www.weibo.com" target="_blank" class="social-link" title="Weibo">微博</a>
+            <a href="https://space.bilibili.com" target="_blank" class="social-link" title="Bilibili">B站</a>
+            <a href="https://www.xiaohongshu.com" target="_blank" class="social-link" title="小红书">小红书</a>
+        </div>
         
         <div>
             <a href="mailto:SYRQuartz@gmail.com" class="contact-email">SYRQuartz@gmail.com</a>
@@ -320,7 +526,14 @@
     </footer>
 
     <script>
-        // 1. 滚动监听动画 (Scroll Reveal)
+        // 1. 页面加载动画
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loadingScreen').classList.add('hidden');
+            }, 800);
+        });
+
+        // 2. 滚动监听动画 (Scroll Reveal)
         document.addEventListener("DOMContentLoaded", function() {
             const observerOptions = {
                 root: null,
@@ -332,7 +545,7 @@
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         entry.target.classList.add('visible');
-                        observer.unobserve(entry.target); 
+                        observer.unobserve(entry); 
                     }
                 });
             }, observerOptions);
@@ -341,30 +554,180 @@
             elements.forEach(el => observer.observe(el));
         });
 
-        // 2. 自定义光标逻辑
+        // 3. 导航栏滚动效果
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            const backToTop = document.getElementById('backToTop');
+            
+            if (window.scrollY > 100) {
+                navbar.classList.add('scrolled');
+                backToTop.classList.add('visible');
+            } else {
+                navbar.classList.remove('scrolled');
+                backToTop.classList.remove('visible');
+            }
+        });
+
+        // 4. 返回顶部功能
+        document.getElementById('backToTop').addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // 5. 作品分类过滤功能
+        const filterButtons = document.querySelectorAll('.filter-btn');
+        const galleryItems = document.querySelectorAll('.film-frame-container');
+
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // 移除所有按钮的active类
+                filterButtons.forEach(b => b.classList.remove('active'));
+                // 添加active类到当前按钮
+                btn.classList.add('active');
+                
+                const filter = btn.getAttribute('data-filter');
+                
+                galleryItems.forEach(item => {
+                    const category = item.getAttribute('data-category');
+                    
+                    if (filter === 'all' || category === filter) {
+                        item.classList.remove('hidden');
+                        setTimeout(() => {
+                            item.style.opacity = '1';
+                            item.style.transform = 'translateY(0)';
+                        }, 10);
+                    } else {
+                        item.style.opacity = '0';
+                        item.style.transform = 'translateY(20px)';
+                        setTimeout(() => {
+                            item.classList.add('hidden');
+                        }, 300);
+                    }
+                });
+            });
+        });
+
+        // 6. 灯箱功能
+        const lightbox = document.getElementById('lightbox');
+        const lightboxImg = document.getElementById('lightboxImg');
+        const lightboxInfo = document.getElementById('lightboxInfo');
+        const lightboxClose = document.getElementById('lightboxClose');
+
+        // 点击图片打开灯箱
+        galleryItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const img = item.querySelector('img');
+                const info = item.querySelector('.img-info');
+                
+                lightboxImg.src = img.src;
+                if (info) {
+                    const title = info.querySelector('h4').textContent;
+                    const desc = info.querySelector('p').textContent;
+                    lightboxInfo.textContent = `${title} · ${desc}`;
+                }
+                
+                lightbox.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            });
+        });
+
+        // 关闭灯箱
+        lightboxClose.addEventListener('click', closeLightbox);
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) {
+                closeLightbox();
+            }
+        });
+
+        // ESC键关闭灯箱
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && lightbox.classList.contains('active')) {
+                closeLightbox();
+            }
+        });
+
+        function closeLightbox() {
+            lightbox.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // 7. 自定义光标逻辑
         const cursorDot = document.querySelector('.cursor-dot');
         const cursorOutline = document.querySelector('.cursor-outline');
         
+        let mouseX = 0, mouseY = 0;
+        let outlineX = 0, outlineY = 0;
+        
         document.body.addEventListener('mousemove', (e) => {
-            const posX = e.clientX; 
-            const posY = e.clientY;
-
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            
             // Dot follows instantly
-            cursorDot.style.left = `${posX}px`;
-            cursorDot.style.top = `${posY}px`;
-
-            // Outline follows smoothly
-            cursorOutline.animate({
-                left: `${posX}px`,
-                top: `${posY}px`
-            }, { duration: 400, fill: "forwards" });
+            cursorDot.style.left = `${mouseX}px`;
+            cursorDot.style.top = `${mouseY}px`;
         });
 
-        // 3. 悬停效果：链接和可交互元素放大光标
-        document.querySelectorAll('a, .film-frame-container').forEach(el => {
+        // Smooth outline animation
+        function animateOutline() {
+            const speed = 0.15;
+            outlineX += (mouseX - outlineX) * speed;
+            outlineY += (mouseY - outlineY) * speed;
+            
+            cursorOutline.style.left = `${outlineX}px`;
+            cursorOutline.style.top = `${outlineY}px`;
+            
+            requestAnimationFrame(animateOutline);
+        }
+        animateOutline();
+
+        // 8. 悬停效果：链接和可交互元素放大光标
+        document.querySelectorAll('a, .film-frame-container, .filter-btn, .back-to-top').forEach(el => {
             el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
             el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
         });
+
+        // 9. 平滑锚点跳转
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // 10. 新增：视差滚动效果（Hero区域）
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const hero = document.querySelector('.hero');
+            if (hero && scrolled < window.innerHeight) {
+                hero.style.transform = `translateY(${scrolled * 0.5}px)`;
+                hero.style.opacity = 1 - (scrolled / window.innerHeight) * 0.8;
+            }
+        });
+
+        // 11. 新增：图片懒加载优化
+        if ('IntersectionObserver' in window) {
+            const imageObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        const img = entry.target;
+                        if (img.dataset.src) {
+                            img.src = img.dataset.src;
+                            img.removeAttribute('data-src');
+                        }
+                        observer.unobserve(img);
+                    }
+                });
+            });
+
+            document.querySelectorAll('img[data-src]').forEach(img => {
+                imageObserver.observe(img);
+            });
+        }
     </script>
 </body>
 </html>
